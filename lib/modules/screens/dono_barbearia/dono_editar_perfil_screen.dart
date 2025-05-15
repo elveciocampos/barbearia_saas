@@ -218,14 +218,12 @@ class EditarPerfilScreenState extends State<EditarPerfilScreen> {
             ElevatedButton(
               onPressed: () async {
                 final arquivosSelecionados = await _picker.pickMultiImage();
-                if (arquivosSelecionados != null) {
-                  setState(() {
-                    _galeriaImagens =
-                        arquivosSelecionados
-                            .map((file) => File(file.path))
-                            .toList();
-                  });
-                }
+                setState(() {
+                  _galeriaImagens =
+                      arquivosSelecionados
+                          .map((file) => File(file.path))
+                          .toList();
+                });
               },
               child: const Text('Selecionar Imagens para Galeria'),
             ),

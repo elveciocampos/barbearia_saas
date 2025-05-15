@@ -15,7 +15,6 @@ import 'modules/cadastro_barbearia_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Garantir que o Firebase só seja inicializado uma vez
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
@@ -34,10 +33,42 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      cardColor: const Color(0xFF1E1E1E),
+      colorScheme: ColorScheme.dark(
+        primary: const Color(0xFF3B82F6),
+        secondary: const Color(0xFF64748B),
+        surface: const Color(0xFF1E1E1E),
+        error: Colors.redAccent,
+      ),
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.white),
+        bodyMedium: TextStyle(color: Colors.white70),
+        titleLarge: TextStyle(color: Colors.white),
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF1E1E1E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF3B82F6),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+
     return MaterialApp(
       title: 'Barbearia SaaS',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: theme,
       home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),

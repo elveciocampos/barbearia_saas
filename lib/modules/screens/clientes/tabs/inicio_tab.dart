@@ -34,10 +34,11 @@ class InicioTab extends StatelessWidget {
 
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: Theme.of(context).cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              elevation: 4,
+              elevation: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -55,9 +56,13 @@ class InicioTab extends StatelessWidget {
                             )
                             : Container(
                               height: 160,
-                              color: Colors.grey[300],
+                              color: Colors.grey[800],
                               child: const Center(
-                                child: Icon(Icons.image, size: 50),
+                                child: Icon(
+                                  Icons.image,
+                                  size: 50,
+                                  color: Colors.white54,
+                                ),
                               ),
                             ),
                   ),
@@ -68,15 +73,14 @@ class InicioTab extends StatelessWidget {
                       children: [
                         Text(
                           nome,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           endereco,
-                          style: const TextStyle(color: Colors.grey),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[400]),
                         ),
                         const SizedBox(height: 8),
                         Row(

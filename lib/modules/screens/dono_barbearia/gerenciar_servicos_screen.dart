@@ -17,7 +17,6 @@ class GerenciarServicosScreen extends StatefulWidget {
 class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
   String? barbeariaId;
   final picker = ImagePicker();
-  File? imagemSelecionada;
 
   @override
   void initState() {
@@ -37,8 +36,9 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
     final id = doc.data()?['barbeariaId'] as String?;
 
     if (id == null || id.isEmpty) {
-      if (mounted)
+      if (mounted) {
         Navigator.pushReplacementNamed(context, '/cadastro_barbearia');
+      }
       return;
     }
 
@@ -89,6 +89,10 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
         doc?['categoria'] ??
         (categorias.isNotEmpty ? categorias.first.id : null);
     String? imagemAtual = doc?['imagem'];
+    File?
+    imagemSelecionadaModal; // variável local para imagem selecionada do modal
+
+    if (!mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -100,13 +104,13 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            Future<void> _selecionarImagem() async {
+            Future<void> selecionarImagem() async {
               final picked = await picker.pickImage(
                 source: ImageSource.gallery,
               );
               if (picked != null) {
                 setModalState(() {
-                  imagemSelecionada = File(picked.path);
+                  imagemSelecionadaModal = File(picked.path);
                 });
               }
             }
@@ -157,25 +161,27 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
                       DropdownButton<String>(
                         value: categoriaSelecionada,
                         onChanged:
-                            (newValue) => setModalState(
-                              () => categoriaSelecionada = newValue,
-                            ),
+                            (newValue) => setModalState(() {
+                              categoriaSelecionada = newValue;
+                            }),
                         items:
-                            categorias.map((cat) {
-                              return DropdownMenuItem<String>(
-                                value: cat.id,
-                                child: Text(cat['nome'] ?? 'Sem nome'),
-                              );
-                            }).toList(),
+                            categorias
+                                .map(
+                                  (cat) => DropdownMenuItem<String>(
+                                    value: cat.id,
+                                    child: Text(cat['nome'] ?? 'Sem nome'),
+                                  ),
+                                )
+                                .toList(),
                         hint: const Text('Selecione uma Categoria'),
                         isExpanded: true,
                       ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: _selecionarImagem,
+                      onTap: selecionarImagem,
                       child:
-                          imagemSelecionada != null
-                              ? Image.file(imagemSelecionada!, height: 100)
+                          imagemSelecionadaModal != null
+                              ? Image.file(imagemSelecionadaModal!, height: 100)
                               : imagemAtual != null
                               ? Image.network(imagemAtual, height: 100)
                               : Container(
@@ -201,9 +207,9 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
                         if (nome.isEmpty) return;
 
                         String? imagemUrl = imagemAtual;
-                        if (imagemSelecionada != null) {
+                        if (imagemSelecionadaModal != null) {
                           imagemUrl = await _uploadImagemParaCloudinary(
-                            imagemSelecionada!,
+                            imagemSelecionadaModal!,
                           );
                         }
 
@@ -242,10 +248,10 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
         );
       },
     ).whenComplete(() {
-      imagemSelecionada = null;
       nomeCtrl.dispose();
       precoCtrl.dispose();
       tempoCtrl.dispose();
+      // Não reseta imagemSelecionada aqui, pois agora está local ao modal.
     });
   }
 

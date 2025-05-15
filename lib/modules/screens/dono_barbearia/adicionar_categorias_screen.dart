@@ -70,8 +70,8 @@ class AdicionarCategoriaScreenState extends State<AdicionarCategoriaScreen> {
                   );
                 }
               },
-              child: const Text('Salvar'),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black87),
+              child: const Text('Salvar'),
             ),
             const SizedBox(height: 32),
             const Text(

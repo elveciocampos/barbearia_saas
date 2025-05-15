@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GerenciarCategoriasScreen extends StatefulWidget {
-  const GerenciarCategoriasScreen({super.key});
+  final String barbeariaId;
+
+  const GerenciarCategoriasScreen({required this.barbeariaId, super.key});
 
   @override
   _GerenciarCategoriasScreenState createState() =>
@@ -11,68 +13,56 @@ class GerenciarCategoriasScreen extends StatefulWidget {
 
 class _GerenciarCategoriasScreenState extends State<GerenciarCategoriasScreen> {
   List<String> categorias = [];
-  String?
-  barbeariaId; // Este valor precisa ser obtido de algum lugar, talvez da tela anterior ou via autenticação
+
+  CollectionReference get categoriasRef => FirebaseFirestore.instance
+      .collection('barbearias')
+      .doc(widget.barbeariaId)
+      .collection('categorias');
 
   @override
   void initState() {
     super.initState();
-    // Defina o barbeariaId aqui ou obtenha via autenticação, etc.
     _loadCategorias();
   }
 
   Future<void> _loadCategorias() async {
-    if (barbeariaId == null) {
-      // Pode adicionar uma lógica de erro aqui se o barbeariaId for nulo
-      return;
-    }
-
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('barbearias')
-            .doc(barbeariaId)
-            .collection('categorias')
-            .get();
-
-    setState(() {
-      categorias =
+    try {
+      final snapshot = await categoriasRef.get();
+      final novaLista =
           snapshot.docs.map((doc) => doc['nome'] as String).toList()..sort();
-    });
+
+      if (!mounted) return; // Evita setState se widget removido
+
+      setState(() {
+        categorias = novaLista;
+      });
+    } catch (e) {
+      // Trate o erro aqui, exibir snackbar ou log
+      debugPrint('Erro ao carregar categorias: $e');
+    }
   }
 
   Future<void> _adicionarCategoria(String nome) async {
-    if (barbeariaId == null) {
-      // Lógica para erro se barbeariaId for nulo
-      return;
+    if (nome.isEmpty || categorias.contains(nome)) return;
+
+    try {
+      await categoriasRef.add({'nome': nome});
+      await _loadCategorias();
+    } catch (e) {
+      debugPrint('Erro ao adicionar categoria: $e');
     }
-
-    final categoriaRef = FirebaseFirestore.instance
-        .collection('barbearias')
-        .doc(barbeariaId)
-        .collection('categorias');
-
-    await categoriaRef.add({'nome': nome});
-    await _loadCategorias();
   }
 
   Future<void> _excluirCategoria(String nome) async {
-    if (barbeariaId == null) {
-      // Lógica para erro se barbeariaId for nulo
-      return;
+    try {
+      final snapshot = await categoriasRef.where('nome', isEqualTo: nome).get();
+      for (final doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+      await _loadCategorias();
+    } catch (e) {
+      debugPrint('Erro ao excluir categoria: $e');
     }
-
-    final categoriaRef = FirebaseFirestore.instance
-        .collection('barbearias')
-        .doc(barbeariaId)
-        .collection('categorias');
-
-    final categoriaDoc =
-        await categoriaRef.where('nome', isEqualTo: nome).get();
-    for (var doc in categoriaDoc.docs) {
-      await doc.reference.delete();
-    }
-
-    await _loadCategorias();
   }
 
   void _abrirModalNovaCategoria() {
@@ -116,7 +106,8 @@ class _GerenciarCategoriasScreenState extends State<GerenciarCategoriasScreen> {
                     if (nome.isEmpty || categorias.contains(nome)) return;
 
                     await _adicionarCategoria(nome);
-                    nomeCtrl.clear(); // Limpa o campo após adicionar
+                    if (!mounted) return;
+                    nomeCtrl.clear();
                     Navigator.pop(context);
                   },
                   child: const Text('Adicionar Categoria'),
