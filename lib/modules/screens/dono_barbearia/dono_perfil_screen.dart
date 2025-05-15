@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'editar_perfil_screen.dart'; // Importando a tela de editar perfil
+import 'dono_editar_perfil_screen.dart'; // Importando a tela de editar perfil
 
 class PerfileScreen extends StatefulWidget {
   const PerfileScreen({super.key});

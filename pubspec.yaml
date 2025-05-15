@@ -24,6 +24,7 @@ dependencies:
   firebase_storage: ^12.4.5
   cloudinary_sdk: ^5.0.0+1
   url_launcher: ^6.2.5
+  font_awesome_flutter: ^10.6.0
   
 
 dev_dependencies:

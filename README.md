@@ -1,10 +1,10 @@
 # barbearia_saas
 
-A new Flutter project.
+Projeto em flutter.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Projeto de um aplicativo de Barbearia SAAS com assinatura.
 
 A few resources to get you started if this is your first Flutter project:
 

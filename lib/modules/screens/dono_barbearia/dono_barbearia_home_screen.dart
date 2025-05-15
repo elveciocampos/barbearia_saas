@@ -1,7 +1,7 @@
 import 'package:barbearia_saas/modules/agenda_screen.dart';
-import 'package:barbearia_saas/modules/barbeiro_dashboard_content.dart';
+import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_dashboard_content.dart';
 import 'package:barbearia_saas/modules/cadastrar_agendamento_screen.dart';
-import 'package:barbearia_saas/modules/perfil_screen.dart';
+import 'package:barbearia_saas/modules/screens/dono_barbearia/dono_perfil_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

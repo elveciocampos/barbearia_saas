@@ -37,8 +37,9 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
     final id = doc.data()?['barbeariaId'] as String?;
 
     if (id == null || id.isEmpty) {
-      if (mounted)
+      if (mounted) {
         Navigator.pushReplacementNamed(context, '/cadastro_barbearia');
+      }
       return;
     }
 
@@ -100,7 +101,7 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            Future<void> _selecionarImagem() async {
+            Future<void> selecionarImagem() async {
               final picked = await picker.pickImage(
                 source: ImageSource.gallery,
               );
@@ -172,7 +173,7 @@ class _GerenciarServicosScreenState extends State<GerenciarServicosScreen> {
                       ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: _selecionarImagem,
+                      onTap: selecionarImagem,
                       child:
                           imagemSelecionada != null
                               ? Image.file(imagemSelecionada!, height: 100)
