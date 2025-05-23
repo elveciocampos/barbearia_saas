@@ -33,19 +33,6 @@ class BarbeiroDashboardContent extends StatelessWidget {
                     ),
                   ),
             ),
-            _buildCard(
-              context,
-              icon: Icons.cut,
-              title: 'Serviços',
-              subtitle: 'Tipos, preços, tempo',
-              onTap:
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const GerenciarServicosScreen(),
-                    ),
-                  ),
-            ),
           ],
         ),
       ),

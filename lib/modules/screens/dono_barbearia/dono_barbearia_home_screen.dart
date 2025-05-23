@@ -1,6 +1,6 @@
 import 'package:barbearia_saas/modules/agenda_screen.dart';
-import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_dashboard_content.dart';
 import 'package:barbearia_saas/modules/cadastrar_agendamento_screen.dart';
+import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos_screen.dart';
 import 'package:barbearia_saas/modules/screens/dono_barbearia/dono_perfil_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,46 +16,30 @@ class DonoBarbeariaHomeScreen extends StatefulWidget {
 
 class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
   int _selectedIndex = 0;
-
-  final List<Widget> _screens = [
-    const BarbeiroDashboardContent(),
-    const AgendaScreen(),
-    const PerfileScreen(),
-  ];
-
   String? barbeariaId;
 
   @override
   void initState() {
     super.initState();
     _loadBarbeariaId();
-    // Adiciona categorias de teste ao carregar a tela
-    _adicionarCategoriasTeste();
   }
 
-  // Função para carregar o id da barbearia (você pode pegar isso do usuário logado ou outra lógica)
   void _loadBarbeariaId() async {
-    // Aqui você deve carregar o barbeariaId a partir do Firebase ou outra lógica.
-    // Vamos supor que ele seja recuperado dessa forma:
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // Substitua isso pelo método correto de carregar o ID da barbearia
-      barbeariaId =
-          user.uid; // Exemplo: o UID do usuário pode ser o ID da barbearia
+      setState(() {
+        barbeariaId = user.uid;
+      });
+      await _adicionarCategoriasTeste(user.uid);
     }
   }
 
-  // Função para adicionar categorias de teste no Firestore
-  void _adicionarCategoriasTeste() async {
-    if (barbeariaId == null) return;
-
-    // Referência à coleção de categorias da barbearia
+  Future<void> _adicionarCategoriasTeste(String barbeariaId) async {
     final categoriasRef = FirebaseFirestore.instance
         .collection('barbearias')
-        .doc(barbeariaId!)
+        .doc(barbeariaId)
         .collection('categorias');
 
-    // Lista de categorias de teste
     List<String> categoriasTeste = [
       'Corte Masculino',
       'Corte Feminino',
@@ -64,12 +48,10 @@ class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
     ];
 
     for (var categoria in categoriasTeste) {
-      // Verifica se a categoria já existe
       final existingCategory =
           await categoriasRef.where('nome', isEqualTo: categoria).get();
 
       if (existingCategory.docs.isEmpty) {
-        // Adiciona a nova categoria no Firestore
         await categoriasRef.add({'nome': categoria});
       }
     }
@@ -85,8 +67,18 @@ class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
+  List<Widget> get _screens => [
+    GerenciarServicosScreen(barbeariaId: barbeariaId ?? ''),
+    const AgendaScreen(),
+    const PerfileScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    if (barbeariaId == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Painel do Administrador'),
@@ -126,7 +118,7 @@ class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard_outlined),
-            label: 'Dashboard',
+            label: 'Serviços',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_outlined),
