@@ -8,7 +8,7 @@ import 'modules/auth/presentation/signup_screen.dart';
 import 'modules/appointment/appointment_screen.dart';
 import 'modules/screens/clientes/cliente_home_screen.dart';
 import 'modules/screens/barbeiro/barbeiro_home_screen.dart';
-import 'modules/screens/dono_barbearia/dono_barbearia_home_screen.dart';
+import 'modules/screens/dono_barbearia/dono_barbearia_dashboard.dart';
 import 'modules/select_user_type_screen.dart';
 import 'modules/cadastro_barbearia_screen.dart';
 

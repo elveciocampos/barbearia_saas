@@ -22,7 +22,6 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
     final email = _emailController.text.trim();
 
     try {
-      // Buscar usuário por e-mail
       final query =
           await _firestore
               .collection('users')
@@ -40,18 +39,17 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
       final doc = query.docs.first;
       final uid = doc.id;
 
-      // Atualiza o barbeiro com o ID da barbearia e o status
       await _firestore.collection('users').doc(uid).update({
         'barbeariaId': _barbeariaId,
         'userType': 'barbeiro',
-        'status': 'ativo', // Adiciona o campo de status
+        'status': 'ativo',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Barbeiro vinculado com sucesso!')),
       );
       _emailController.clear();
-      setState(() {}); // Atualiza a lista
+      setState(() {});
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -63,7 +61,6 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
 
   Future<void> _deletarBarbeiro(String uid) async {
     try {
-      // Confirmação de exclusão
       final confirm = await showDialog<bool>(
         context: context,
         builder:
@@ -86,11 +83,10 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
       );
 
       if (confirm == true) {
-        // Atualiza o usuário removendo a barbearia
         await _firestore.collection('users').doc(uid).update({
-          'barbeariaId': FieldValue.delete(), // Remove o ID da barbearia
-          'userType': FieldValue.delete(), // Remove o tipo de usuário
-          'status': FieldValue.delete(), // Remove o status
+          'barbeariaId': FieldValue.delete(),
+          'userType': FieldValue.delete(),
+          'status': FieldValue.delete(),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,9 +102,8 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
 
   Future<void> _alterarStatus(String uid, String novoStatus) async {
     try {
-      // Altera o status do barbeiro
       await _firestore.collection('users').doc(uid).update({
-        'status': novoStatus, // Atualiza o status para "inativo" ou "ativo"
+        'status': novoStatus,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -168,13 +163,17 @@ class _GerenciarBarbeirosScreenState extends State<GerenciarBarbeirosScreen> {
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
                       final data = docs[index].data() as Map<String, dynamic>;
-                      final uid = docs[index].id; // ID do barbeiro
-                      final status =
-                          data['status'] ?? 'ativo'; // Obtém o status
+                      final uid = docs[index].id;
+                      final status = data['status'] ?? 'ativo';
+                      final nome = data['nome']?.toString().trim();
 
                       return ListTile(
                         leading: const Icon(Icons.person),
-                        title: Text(data['nome'] ?? 'Sem nome'),
+                        title: Text(
+                          nome?.isNotEmpty == true
+                              ? nome!
+                              : '(Sem nome cadastrado)',
+                        ),
                         subtitle: Text(data['email'] ?? ''),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
