@@ -1,7 +1,6 @@
 import 'package:barbearia_saas/modules/screens/dono_barbearia/adicionar_categorias_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_barbeiros_screen.dart';
-import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos_screen.dart';
 
 class BarbeiroDashboardContent extends StatelessWidget {
   const BarbeiroDashboardContent({super.key});
@@ -43,8 +42,9 @@ class BarbeiroDashboardContent extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder:
-                  (_) =>
-                      const AdicionarCategoriaScreen(), // Tela de adicionar categoria
+                  (_) => const Text(
+                    'Adicionar outra tela',
+                  ), // Tela de adicionar categoria
             ),
           );
         },

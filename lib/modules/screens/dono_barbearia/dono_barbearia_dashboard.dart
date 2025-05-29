@@ -1,3 +1,5 @@
+import 'package:barbearia_saas/modules/screens/dono_barbearia/adicionar_categorias_screen.dart';
+import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_categorias.dart';
 import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -134,7 +136,12 @@ class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
             // Card Categorias
             GestureDetector(
               onTap: () {
-                // Navegação para a tela Categorias (implementar depois)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarCategoriasScreen(),
+                  ),
+                );
               },
               child: Container(
                 decoration: BoxDecoration(

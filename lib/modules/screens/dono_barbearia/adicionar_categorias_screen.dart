@@ -11,6 +11,7 @@ class AdicionarCategoriaScreen extends StatefulWidget {
 }
 
 class _AdicionarCategoriaScreenState extends State<AdicionarCategoriaScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _descricaoController = TextEditingController();
 
@@ -27,11 +28,54 @@ class _AdicionarCategoriaScreenState extends State<AdicionarCategoriaScreen> {
 
   Future<void> _getBarbeariaId() async {
     final user = _auth.currentUser;
-    if (user != null) {
+    if (user != null && mounted) {
       setState(() {
         barbeariaId = user.uid;
       });
     }
+  }
+
+  Future<void> _salvarCategoria() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (barbeariaId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Barbearia não encontrada')));
+      return;
+    }
+
+    final nome = _nomeController.text.trim();
+    final descricao = _descricaoController.text.trim();
+
+    try {
+      await _firestore.collection('categorias').add({
+        'nome': nome,
+        'descricao': descricao,
+        'barbeariaId': barbeariaId,
+        'criadoEm': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Categoria "$nome" criada com sucesso!')),
+      );
+
+      _nomeController.clear();
+      _descricaoController.clear();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar categoria: $e')));
+    }
+  }
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _descricaoController.dispose();
+    super.dispose();
   }
 
   @override
@@ -43,164 +87,50 @@ class _AdicionarCategoriaScreenState extends State<AdicionarCategoriaScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _nomeController,
-              decoration: const InputDecoration(labelText: 'Nome da Categoria'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _descricaoController,
-              decoration: const InputDecoration(labelText: 'Descrição'),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () async {
-                final nome = _nomeController.text.trim();
-                final descricao = _descricaoController.text.trim();
-
-                if (nome.isNotEmpty &&
-                    descricao.isNotEmpty &&
-                    barbeariaId != null) {
-                  await _firestore.collection('categorias').add({
-                    'nome': nome,
-                    'descricao': descricao,
-                    'barbeariaId': barbeariaId,
-                    'criadoEm': FieldValue.serverTimestamp(),
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Categoria "$nome" criada com sucesso!'),
-                    ),
-                  );
-
-                  _nomeController.clear();
-                  _descricaoController.clear();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Por favor, preencha todos os campos'),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black87),
-              child: const Text('Salvar'),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Categorias Cadastradas:',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child:
-                  barbeariaId == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : StreamBuilder<QuerySnapshot>(
-                        stream:
-                            _firestore
-                                .collection('categorias')
-                                .where('barbeariaId', isEqualTo: barbeariaId)
-                                .orderBy('criadoEm')
-                                .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (!snapshot.hasData ||
-                              snapshot.data!.docs.isEmpty) {
-                            return const Center(
-                              child: Text('Nenhuma categoria cadastrada.'),
-                            );
-                          }
-
-                          final categorias = snapshot.data!.docs;
-
-                          return ListView.builder(
-                            itemCount: categorias.length,
-                            itemBuilder: (context, index) {
-                              var categoria =
-                                  categorias[index].data()
-                                      as Map<String, dynamic>;
-                              String nome = categoria['nome'];
-                              String descricao = categoria['descricao'];
-
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  title: Text(nome),
-                                  subtitle: Text(descricao),
-                                  trailing: IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.redAccent,
-                                    ),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder:
-                                            (_) => AlertDialog(
-                                              title: const Text(
-                                                'Excluir Categoria',
-                                              ),
-                                              content: const Text(
-                                                'Tem certeza que deseja excluir esta categoria?',
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                        false,
-                                                      ),
-                                                  child: const Text('Cancelar'),
-                                                ),
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                        true,
-                                                      ),
-                                                  child: const Text('Excluir'),
-                                                ),
-                                              ],
-                                            ),
-                                      );
-
-                                      if (confirm == true) {
-                                        await _firestore
-                                            .collection('categorias')
-                                            .doc(categorias[index].id)
-                                            .delete();
-
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Categoria excluída com sucesso!',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-            ),
-          ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nomeController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da Categoria',
+                  border: OutlineInputBorder(),
+                ),
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Informe o nome'
+                            : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descricaoController,
+                decoration: const InputDecoration(
+                  labelText: 'Descrição',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                validator:
+                    (value) =>
+                        value == null || value.isEmpty
+                            ? 'Informe a descrição'
+                            : null,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _salvarCategoria,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[900],
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('Salvar', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
