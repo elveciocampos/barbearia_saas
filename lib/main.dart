@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         '/appointment': (context) => const AppointmentScreen(),
         '/cliente': (context) => const ClienteHomeScreen(),
         '/barbeiro': (context) => const BarbeiroHomeScreen(),
-        '/dono': (context) => const DonoBarbeariaHomeScreen(),
+        '/dono': (context) => const DonoBarbeariaDashboard(),
         '/user_type': (context) => const UserTypeScreen(),
         '/cadastro_barbearia': (context) => const CadastroBarbeariaScreen(),
       },

@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DonoBarbeariaHomeScreen extends StatefulWidget {
-  const DonoBarbeariaHomeScreen({super.key});
+class DonoBarbeariaDashboard extends StatefulWidget {
+  const DonoBarbeariaDashboard({super.key});
 
   @override
-  State<DonoBarbeariaHomeScreen> createState() =>
-      _DonoBarbeariaHomeScreenState();
+  State<DonoBarbeariaDashboard> createState() => _DonoBarbeariaDashboardState();
 }
 
-class _DonoBarbeariaHomeScreenState extends State<DonoBarbeariaHomeScreen> {
+class _DonoBarbeariaDashboardState extends State<DonoBarbeariaDashboard> {
   int _selectedIndex = 0;
   String? barbeariaId;
 
