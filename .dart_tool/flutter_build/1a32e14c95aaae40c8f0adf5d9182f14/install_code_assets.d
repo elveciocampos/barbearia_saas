@@ -1,0 +1,1 @@
+ C:\\Users\\SANTOS\\barbearia_saas\\.dart_tool\\flutter_build\\1a32e14c95aaae40c8f0adf5d9182f14\\native_assets.json: 
