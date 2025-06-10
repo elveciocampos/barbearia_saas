@@ -1,3 +1,4 @@
+import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_barbeiros_screen.dart';
 import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_categorias.dart';
 import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos_screen.dart';
 import 'package:flutter/material.dart';
@@ -164,7 +165,12 @@ class _DonoBarbeariaDashboardState extends State<DonoBarbeariaDashboard> {
             // Card Barbeiros
             GestureDetector(
               onTap: () {
-                // Navegação para a tela Barbeiros (implementar depois)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const GerenciarBarbeirosScreen(),
+                  ),
+                );
               },
               child: Container(
                 decoration: BoxDecoration(

@@ -1,3 +1,4 @@
+import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_dashboard_content.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignupScreen(),
         '/appointment': (context) => const AppointmentScreen(),
         '/cliente': (context) => const ClienteHomeScreen(),
-        '/barbeiro': (context) => const BarbeiroHomeScreen(),
+        '/barbeiro': (context) => const BarbeiroDashboardContent(),
         '/dono': (context) => const DonoBarbeariaDashboard(),
         '/user_type': (context) => const UserTypeScreen(),
         '/cadastro_barbearia': (context) => const CadastroBarbeariaScreen(),
