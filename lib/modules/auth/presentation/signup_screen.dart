@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -10,136 +10,372 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _nomeController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final _confirmaSenhaController = TextEditingController();
-  String _userType = 'cliente'; // Valor padrão
-  bool _loading = false;
+  final _formKey = GlobalKey<FormState>();
 
-  Future<void> _signup() async {
-    if (_senhaController.text != _confirmaSenhaController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('As senhas não coincidem!')));
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  // Campos extras para Dono de Barbearia
+  final _barbershopNameController = TextEditingController();
+  final _cpfCnpjController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
+
+  String? _userType;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _barbershopNameController.dispose();
+    _cpfCnpjController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  void _togglePassword() {
+    setState(() {
+      _showPassword = !_showPassword;
+    });
+  }
+
+  void _toggleConfirmPassword() {
+    setState(() {
+      _showConfirmPassword = !_showConfirmPassword;
+    });
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_userType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, selecione o tipo de usuário')),
+      );
       return;
     }
 
-    setState(() => _loading = true);
-
-    try {
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _senhaController.text.trim(),
-          );
-
-      if (userCredential.user != null) {
-        final userDocRef = FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user!.uid);
-
-        await userDocRef.set({
-          'nome': _nomeController.text.trim(),
-          'email': _emailController.text.trim(),
-          'userType': _userType,
-          'isCliente': _userType == 'cliente',
-          if (_userType == 'barbeiro' || _userType == 'dono')
-            'barbeariaId': '', // Será preenchido posteriormente
-        });
-
-        final userType = _userType;
-
-        if (!mounted) return;
-
-        if (userType == 'barbeiro') {
-          Navigator.pushReplacementNamed(context, '/barbeiro_home');
-        } else if (userType == 'dono') {
-          Navigator.pushReplacementNamed(context, '/dono');
-        } else {
-          Navigator.pushReplacementNamed(context, '/cliente');
-        }
+    if (_userType == 'Dono de Barbearia') {
+      if (_barbershopNameController.text.isEmpty ||
+          _cpfCnpjController.text.isEmpty ||
+          _addressController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor, preencha todos os campos da barbearia'),
+          ),
+        );
+        return;
       }
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Erro ao criar conta')),
-      );
-    } finally {
-      if (mounted) setState(() => _loading = false);
+    }
+
+    // Apenas prints para exemplo
+    print('Nome: ${_nameController.text}');
+    print('Telefone: ${_phoneController.text}');
+    print('Email: ${_emailController.text}');
+    print('Senha: ${_passwordController.text}');
+    print('Tipo de usuário: $_userType');
+
+    if (_userType == 'Dono de Barbearia') {
+      print('Nome da Barbearia: ${_barbershopNameController.text}');
+      print('CPF/CNPJ: ${_cpfCnpjController.text}');
+      print('Endereço: ${_addressController.text}');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                controller: _nomeController,
-                decoration: const InputDecoration(labelText: 'Nome'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'E-mail'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _senhaController,
-                decoration: const InputDecoration(labelText: 'Senha'),
-                obscureText: true,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _confirmaSenhaController,
-                decoration: const InputDecoration(
-                  labelText: 'Confirme a Senha',
+      backgroundColor: const Color(0xFFFFFFFF),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF2797FF),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _userType,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'cliente',
-                    child: Text('Sou cliente'),
+                const SizedBox(height: 8),
+                Text(
+                  'Cadastrar Barbearia Pro',
+                  style: GoogleFonts.manrope(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    color: const Color(0xFF161C24),
                   ),
-                  DropdownMenuItem(
-                    value: 'barbeiro',
-                    child: Text('Sou barbeiro'),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Crie sua conta e faça parte da nossa comunidade de profissionais.',
+                  style: GoogleFonts.manrope(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                    color: const Color(0xFF161C24),
                   ),
-                  DropdownMenuItem(
-                    value: 'dono',
-                    child: Text('Sou dono de barbearia'),
+                ),
+                const SizedBox(height: 24),
+
+                // Tipo de usuário
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tipo de Usuário',
+                      style: GoogleFonts.manrope(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: const Color(0xFF161C24),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...[
+                      'Dono de Barbearia',
+                      'Barbeiro Profissional',
+                      'Cliente',
+                    ].map((tipo) {
+                      final selected = _userType == tipo;
+                      return InkWell(
+                        onTap: () => setState(() => _userType = tipo),
+                        child: Row(
+                          children: [
+                            Radio<String>(
+                              value: tipo,
+                              groupValue: _userType,
+                              activeColor: const Color(0xFF2797FF),
+                              fillColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                    (states) =>
+                                        states.contains(MaterialState.selected)
+                                            ? const Color(0xFF2797FF)
+                                            : const Color(0xFFB0C5D9),
+                                  ),
+                              onChanged:
+                                  (val) => setState(() => _userType = val),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              tipo,
+                              style: GoogleFonts.manrope(
+                                fontWeight:
+                                    selected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                fontSize: 14,
+                                color: const Color(0xFF161C24),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Campos comuns
+                buildTextField(
+                  'Nome completo',
+                  'Digite seu nome completo',
+                  _nameController,
+                  Icons.person,
+                ),
+                const SizedBox(height: 16),
+                buildTextField(
+                  'Telefone',
+                  'Digite seu telefone',
+                  _phoneController,
+                  Icons.phone,
+                ),
+                const SizedBox(height: 16),
+                buildTextField(
+                  'E-mail',
+                  'Digite seu e-mail',
+                  _emailController,
+                  Icons.email,
+                  keyboard: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                buildTextField(
+                  'Senha',
+                  'Digite sua senha',
+                  _passwordController,
+                  Icons.lock,
+                  obscure: !_showPassword,
+                  toggleObscure: _togglePassword,
+                ),
+                const SizedBox(height: 16),
+                buildTextField(
+                  'Confirmar Senha',
+                  'Confirme sua senha',
+                  _confirmPasswordController,
+                  Icons.lock_outline,
+                  obscure: !_showConfirmPassword,
+                  toggleObscure: _toggleConfirmPassword,
+                ),
+
+                // Campos extras para Dono de Barbearia
+                if (_userType == 'Dono de Barbearia') ...[
+                  const SizedBox(height: 16),
+                  buildTextField(
+                    'Nome da Barbearia',
+                    'Digite o nome da barbearia',
+                    _barbershopNameController,
+                    Icons.store,
+                  ),
+                  const SizedBox(height: 16),
+                  buildTextField(
+                    'CPF ou CNPJ',
+                    'Digite o CPF ou CNPJ',
+                    _cpfCnpjController,
+                    Icons.badge,
+                    keyboard: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  buildTextField(
+                    'Endereço da Barbearia',
+                    'Digite o endereço da barbearia',
+                    _addressController,
+                    Icons.location_on,
                   ),
                 ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _userType = value;
-                    });
-                  }
-                },
-                decoration: const InputDecoration(labelText: 'Tipo de usuário'),
-              ),
-              const SizedBox(height: 24),
-              _loading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                    onPressed: _signup,
-                    child: const Text('Cadastrar'),
+
+                const SizedBox(height: 24),
+
+                // Botão Criar Conta
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2797FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    child: Text(
+                      'Criar Conta',
+                      style: GoogleFonts.manrope(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-            ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // Link para login
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Já tem uma conta? ',
+                      style: GoogleFonts.manrope(
+                        color: const Color(0xFF161C24),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Fazer login',
+                          style: GoogleFonts.manrope(
+                            color: const Color(0xFF2797FF),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                          recognizer:
+                              TapGestureRecognizer()
+                                ..onTap = () {
+                                  // ação de navegação para login
+                                },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildTextField(
+    String label,
+    String hint,
+    TextEditingController controller,
+    IconData icon, {
+    bool obscure = false,
+    VoidCallback? toggleObscure,
+    TextInputType keyboard = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.manrope(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF161C24),
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboard,
+          style: GoogleFonts.manrope(
+            color: const Color(0xFF161C24),
+            fontSize: 16,
+          ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.manrope(
+              color: const Color(0x802797FF),
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: Icon(icon, color: const Color(0xFF2797FF)),
+            suffixIcon:
+                toggleObscure != null
+                    ? IconButton(
+                      icon: Icon(
+                        obscure ? Icons.visibility_off : Icons.visibility,
+                        color: const Color(0xFF2797FF),
+                      ),
+                      onPressed: toggleObscure,
+                    )
+                    : null,
+            filled: true,
+            fillColor: const Color(0xFFFAFAFA),
+            border: InputBorder.none,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Campo obrigatório';
+            }
+            return null;
+          },
+        ),
+      ],
     );
   }
 }

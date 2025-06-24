@@ -25,7 +25,9 @@ dependencies:
   cloudinary_sdk: ^5.0.0+1
   url_launcher: ^6.2.5
   font_awesome_flutter: ^10.6.0
-  
+  google_fonts: ^4.0.3
+  firebase_app_check: ^0.3.2+5
+  mask_text_input_formatter: ^2.3.0
 
 dev_dependencies:
   flutter_test:

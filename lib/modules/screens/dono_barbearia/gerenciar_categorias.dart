@@ -1,8 +1,9 @@
+import 'package:barbearia_saas/modules/screens/dono_barbearia/adicionar_categorias_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GerenciarCategoriasScreen extends StatelessWidget {
-  const GerenciarCategoriasScreen({super.key});
+  const GerenciarCategoriasScreen({super.key}); // ✅ Construtor restaurado
 
   void _confirmarExclusao(BuildContext context, String categoriaId) {
     showDialog(
@@ -37,13 +38,19 @@ class GerenciarCategoriasScreen extends StatelessWidget {
   }
 
   void _navegarParaEditar(BuildContext context, String categoriaId) {
-    // Substitua essa chamada conforme sua arquitetura de rotas
-    Navigator.pushNamed(context, '/editar-categoria', arguments: categoriaId);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AdicionarCategoriaScreen(categoriaId: categoriaId),
+      ),
+    );
   }
 
   void _navegarParaAdicionar(BuildContext context) {
-    // Substitua essa chamada conforme sua arquitetura de rotas
-    Navigator.pushNamed(context, '/adicionar-categoria');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AdicionarCategoriaScreen()),
+    );
   }
 
   @override

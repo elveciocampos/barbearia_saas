@@ -36,10 +36,9 @@ class _AdicionarServicoScreenState extends State<AdicionarServicoScreen> {
 
   Future<void> _carregarServico() async {
     setState(() => _carregando = true);
+
     final doc =
         await FirebaseFirestore.instance
-            .collection('barbearias')
-            .doc(widget.barbeariaId)
             .collection('servicos')
             .doc(widget.servicoId)
             .get();
@@ -75,13 +74,11 @@ class _AdicionarServicoScreenState extends State<AdicionarServicoScreen> {
         'descricao': _descricaoController.text.trim(),
         'preco': preco,
         'categoria': _categoriaSelecionada,
+        'barbeariaId': widget.barbeariaId, // mantém a referência
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      final ref = FirebaseFirestore.instance
-          .collection('barbearias')
-          .doc(widget.barbeariaId)
-          .collection('servicos');
+      final ref = FirebaseFirestore.instance.collection('servicos');
 
       if (widget.servicoId == null) {
         dados['createdAt'] = FieldValue.serverTimestamp();
@@ -175,8 +172,9 @@ class _AdicionarServicoScreenState extends State<AdicionarServicoScreen> {
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Informe o preço';
+                          }
                           final preco = double.tryParse(
                             value.replaceAll(',', '.'),
                           );

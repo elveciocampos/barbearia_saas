@@ -1,5 +1,7 @@
+import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_dashboard_content.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart'; // <-- Import adicionado
 import 'firebase_options.dart';
 
 import 'splash_screen.dart';
@@ -7,7 +9,6 @@ import 'modules/auth/presentation/login_screen.dart';
 import 'modules/auth/presentation/signup_screen.dart';
 import 'modules/appointment/appointment_screen.dart';
 import 'modules/screens/clientes/cliente_home_screen.dart';
-import 'modules/screens/barbeiro/barbeiro_home_screen.dart';
 import 'modules/screens/dono_barbearia/dono_barbearia_dashboard.dart';
 import 'modules/select_user_type_screen.dart';
 import 'modules/cadastro_barbearia_screen.dart';
@@ -16,14 +17,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
-    debugPrint("Erro ao inicializar o Firebase: $e");
+    if (!e.toString().contains(
+      'A Firebase App named "[DEFAULT]" already exists',
+    )) {
+      rethrow;
+    }
   }
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
 
   runApp(const MyApp());
 }
@@ -72,11 +80,11 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
+        '/signup': (context) => SignupScreen(),
         '/appointment': (context) => const AppointmentScreen(),
         '/cliente': (context) => const ClienteHomeScreen(),
-        '/barbeiro': (context) => const BarbeiroHomeScreen(),
-        '/dono': (context) => const DonoBarbeariaHomeScreen(),
+        '/barbeiro': (context) => const BarbeiroDashboardContent(),
+        '/dono': (context) => const DonoBarbeariaDashboard(),
         '/user_type': (context) => const UserTypeScreen(),
         '/cadastro_barbearia': (context) => const CadastroBarbeariaScreen(),
       },

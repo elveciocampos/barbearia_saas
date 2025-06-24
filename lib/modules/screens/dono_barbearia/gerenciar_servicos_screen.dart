@@ -24,8 +24,6 @@ class GerenciarServicosScreen extends StatelessWidget {
                 onPressed: () async {
                   Navigator.pop(context);
                   await FirebaseFirestore.instance
-                      .collection('barbearias')
-                      .doc(barbeariaId)
                       .collection('servicos')
                       .doc(servicoId)
                       .delete();
@@ -40,12 +38,26 @@ class GerenciarServicosScreen extends StatelessWidget {
     );
   }
 
+  Future<Map<String, String>> _carregarNomesCategorias(
+    List<String> categoriaIds,
+  ) async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('categorias')
+            .where(FieldPath.documentId, whereIn: categoriaIds)
+            .get();
+
+    return {
+      for (var doc in snapshot.docs)
+        doc.id: (doc.data()['nome'] ?? 'Sem nome').toString(),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final servicosRef = FirebaseFirestore.instance
-        .collection('barbearias')
-        .doc(barbeariaId)
-        .collection('servicos');
+        .collection('servicos')
+        .where('barbeariaId', isEqualTo: barbeariaId);
 
     return Scaffold(
       appBar: AppBar(
@@ -83,48 +95,69 @@ class GerenciarServicosScreen extends StatelessWidget {
             return const Center(child: Text('Nenhum serviço cadastrado.'));
           }
 
-          return ListView.builder(
-            itemCount: servicos.length,
-            itemBuilder: (context, index) {
-              final doc = servicos[index];
-              final dados = doc.data() as Map<String, dynamic>;
-              final nome = dados['nome'] ?? 'Sem nome';
-              final preco = dados['preco'] ?? 0.0;
-              final categoria = dados['categoria'] ?? '';
-              final servicoId = doc.id;
+          final categoriaIds =
+              servicos
+                  .map((doc) => (doc.data() as Map)['categoria'])
+                  .whereType<String>()
+                  .toSet()
+                  .toList();
 
-              return Card(
-                child: ListTile(
-                  title: Text(nome),
-                  subtitle: Text(
-                    'Preço: R\$ ${preco.toStringAsFixed(2)}\nCategoria: $categoria',
-                  ),
-                  isThreeLine: true,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => AdicionarServicoScreen(
-                                    barbeariaId: barbeariaId,
-                                    servicoId: servicoId,
-                                  ),
-                            ),
-                          );
-                        },
+          return FutureBuilder<Map<String, String>>(
+            future: _carregarNomesCategorias(categoriaIds),
+            builder: (context, catSnapshot) {
+              if (catSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final nomesCategorias = catSnapshot.data ?? {};
+
+              return ListView.builder(
+                itemCount: servicos.length,
+                itemBuilder: (context, index) {
+                  final doc = servicos[index];
+                  final dados = doc.data() as Map<String, dynamic>;
+                  final nome = dados['nome'] ?? 'Sem nome';
+                  final preco = dados['preco'] ?? 0.0;
+                  final categoriaId = dados['categoria'] ?? '';
+                  final nomeCategoria =
+                      nomesCategorias[categoriaId] ?? 'Sem Categoria';
+                  final servicoId = doc.id;
+
+                  return Card(
+                    child: ListTile(
+                      title: Text(nome),
+                      subtitle: Text(
+                        'Preço: R\$ ${preco.toStringAsFixed(2)}\nCategoria: $nomeCategoria',
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _confirmarExclusao(context, servicoId),
+                      isThreeLine: true,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => AdicionarServicoScreen(
+                                        barbeariaId: barbeariaId,
+                                        servicoId: servicoId,
+                                      ),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed:
+                                () => _confirmarExclusao(context, servicoId),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           );
