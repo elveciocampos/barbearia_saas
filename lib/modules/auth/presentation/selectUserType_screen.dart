@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SelectUserTypeScreen extends StatefulWidget {
-  const SelectUserTypeScreen({super.key});
+  const SelectUserTypeScreen({Key? key}) : super(key: key);
 
   @override
   State<SelectUserTypeScreen> createState() => _SelectUserTypeScreenState();
@@ -88,6 +88,7 @@ class _SelectUserTypeScreenState extends State<SelectUserTypeScreen> {
         secondary: Color.fromARGB(255, 19, 239, 129),
         tertiary: Color.fromARGB(255, 232, 127, 40),
         surface: Colors.white,
+        background: Color(0xFFF5F7FA),
       ),
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: Colors.black87),
@@ -265,7 +266,8 @@ class _SelectUserTypeScreenState extends State<SelectUserTypeScreen> {
 class FillUserDataScreen extends StatefulWidget {
   final String userType;
 
-  const FillUserDataScreen({super.key, required this.userType});
+  const FillUserDataScreen({Key? key, required this.userType})
+    : super(key: key);
 
   @override
   State<FillUserDataScreen> createState() => _FillUserDataScreenState();
@@ -391,6 +393,7 @@ class _FillUserDataScreenState extends State<FillUserDataScreen> {
         secondary: Color(0xFF64B5F6),
         tertiary: Color(0xFF90CAF9),
         surface: Colors.white,
+        background: Color(0xFFF5F7FA),
       ),
       textTheme: const TextTheme(
         bodyLarge: TextStyle(color: Colors.black87),
