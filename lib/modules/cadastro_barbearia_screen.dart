@@ -146,7 +146,7 @@ class MyApp extends StatelessWidget {
 }
 
 class CadastrarBarbearia extends StatefulWidget {
-  const CadastrarBarbearia({Key? key}) : super(key: key);
+  const CadastrarBarbearia({super.key});
 
   @override
   CadastrarBarbeariaState createState() => CadastrarBarbeariaState();
@@ -379,7 +379,7 @@ class CadastrarBarbeariaState extends State<CadastrarBarbearia> {
 }
 
 class SuccessPage extends StatelessWidget {
-  const SuccessPage({Key? key}) : super(key: key);
+  const SuccessPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
