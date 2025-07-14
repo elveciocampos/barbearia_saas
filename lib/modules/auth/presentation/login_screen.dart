@@ -1,12 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:barbearia_saas/modules/auth/passwordRecovary_Screen.dart';
 import 'package:barbearia_saas/modules/auth/presentation/signup_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -151,160 +146,180 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const String backgroundUrl =
+        'https://plus.unsplash.com/premium_photo-1661645788141-8196a45fb483?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Substitua pela sua URL real
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.content_cut,
-                    size: 64,
-                    color: Color(0xFF2797FF),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Barbearia Estilo Fino',
-                    style: GoogleFonts.manrope(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    autofillHints: const [AutofillHints.email],
-                    textInputAction: TextInputAction.next,
-                    decoration: _inputDecoration(
-                      'Email',
-                      'Digite seu email',
-                      Icons.email_outlined,
-                    ),
-                    style: _inputTextStyle(),
-                    cursorColor: primaryColor,
-                    validator: _validateEmail,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_passwordVisible,
-                    keyboardType: TextInputType.visiblePassword,
-                    autofillHints: const [AutofillHints.password],
-                    textInputAction: TextInputAction.done,
-                    decoration: _inputDecoration(
-                      'Senha',
-                      'Digite sua senha',
-                      Icons.lock_outlined,
-                      suffix: InkWell(
-                        onTap:
-                            () => setState(
-                              () => _passwordVisible = !_passwordVisible,
-                            ),
-                        child: Icon(
-                          _passwordVisible
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 20,
-                          color: const Color(0xFF636F81),
-                        ),
-                      ),
-                    ),
-                    style: _inputTextStyle(),
-                    cursorColor: primaryColor,
-                    validator: _validatePassword,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _onLoginPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: borderRadius,
-                        ),
-                      ),
-                      child:
-                          _loading
-                              ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                              : Text(
-                                'ENTRAR',
-                                style: GoogleFonts.manrope(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: _onForgotPasswordPressed,
-                    child: Text(
-                      'Esqueceu sua senha?',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(thickness: 1, color: Color(0xFFE0E3E7)),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Não tem uma conta?',
-                    style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      color: const Color(0xFF636F81),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SignupScreen(),
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: primaryColor, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: borderRadius,
-                        ),
-                      ),
-                      child: Text(
-                        'CRIAR CONTA',
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            backgroundUrl,
+            fit: BoxFit.cover,
+            errorBuilder:
+                (context, error, stackTrace) => Container(color: Colors.grey),
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+          Container(color: Colors.black.withOpacity(0.4)),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        'BarberZika',
                         style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: primaryColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 32),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                        textInputAction: TextInputAction.next,
+                        decoration: _inputDecoration(
+                          'Email',
+                          'Digite seu email',
+                          Icons.email_outlined,
+                        ).copyWith(
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.1),
+                        ),
+                        style: _inputTextStyle().copyWith(color: Colors.white),
+                        cursorColor: primaryColor,
+                        validator: _validateEmail,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: !_passwordVisible,
+                        keyboardType: TextInputType.visiblePassword,
+                        autofillHints: const [AutofillHints.password],
+                        textInputAction: TextInputAction.done,
+                        decoration: _inputDecoration(
+                          'Senha',
+                          'Digite sua senha',
+                          Icons.lock_outlined,
+                          suffix: InkWell(
+                            onTap:
+                                () => setState(() {
+                                  _passwordVisible = !_passwordVisible;
+                                }),
+                            child: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              size: 20,
+                              color: const Color(0xFF636F81),
+                            ),
+                          ),
+                        ).copyWith(
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.2),
+                        ),
+                        style: _inputTextStyle().copyWith(color: Colors.white),
+                        cursorColor: primaryColor,
+                        validator: _validatePassword,
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _loading ? null : _onLoginPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor.withOpacity(0.8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: borderRadius,
+                            ),
+                          ),
+                          child:
+                              _loading
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : Text(
+                                    'ENTRAR',
+                                    style: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _onForgotPasswordPressed,
+                        child: Text(
+                          'Esqueceu sua senha?',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.manrope(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Divider(thickness: 1, color: Color(0xFFE0E3E7)),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Não tem uma conta?',
+                        style: GoogleFonts.manrope(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SignupScreen(),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: primaryColor, width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: borderRadius,
+                            ),
+                          ),
+                          child: Text(
+                            'CRIAR CONTA',
+                            style: GoogleFonts.manrope(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -318,27 +333,29 @@ class _LoginScreenState extends State<LoginScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, size: 20, color: const Color(0xFF636F81)),
+      prefixIcon: Icon(icon, size: 20, color: Colors.white70),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Colors.white.withOpacity(0.03),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFE0E3E7), width: 1),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: borderRadius,
-        borderSide: BorderSide(color: primaryColor, width: 1),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFEE4444), width: 1),
+        borderSide: const BorderSide(color: Color(0xFFEE4444)),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFEE4444), width: 1),
+        borderSide: const BorderSide(color: Color(0xFFEE4444)),
       ),
+      labelStyle: const TextStyle(color: Colors.white),
+      hintStyle: const TextStyle(color: Colors.white70), // <-- aqui
     );
   }
 
@@ -346,7 +363,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GoogleFonts.manrope(
       fontWeight: FontWeight.w500,
       fontSize: 16,
-      color: const Color(0xFF161C24),
+      color: Colors.white, // <-- Altere para branco aqui
     );
   }
 }

@@ -1,10 +1,7 @@
-import 'package:barbearia_saas/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class CadastroBarbeariaScreen extends StatefulWidget {
   const CadastroBarbeariaScreen({super.key});
@@ -146,7 +143,7 @@ class MyApp extends StatelessWidget {
 }
 
 class CadastrarBarbearia extends StatefulWidget {
-  const CadastrarBarbearia({Key? key}) : super(key: key);
+  const CadastrarBarbearia({super.key});
 
   @override
   CadastrarBarbeariaState createState() => CadastrarBarbeariaState();
@@ -379,7 +376,7 @@ class CadastrarBarbeariaState extends State<CadastrarBarbearia> {
 }
 
 class SuccessPage extends StatelessWidget {
-  const SuccessPage({Key? key}) : super(key: key);
+  const SuccessPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
