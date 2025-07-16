@@ -150,6 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'https://plus.unsplash.com/premium_photo-1661645788141-8196a45fb483?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; // Substitua pela sua URL real
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,

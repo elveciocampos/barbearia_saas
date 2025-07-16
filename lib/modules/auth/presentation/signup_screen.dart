@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -53,7 +55,20 @@ class _SignupScreenState extends State<SignupScreen> {
     });
   }
 
-  void _submit() {
+  String mapUserType(String userType) {
+    switch (userType) {
+      case 'Dono de Barbearia':
+        return 'dono';
+      case 'Barbeiro Profissional':
+        return 'barbeiro';
+      case 'Cliente':
+        return 'cliente';
+      default:
+        return 'indefinido';
+    }
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_userType == null) {
@@ -63,7 +78,9 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    if (_userType == 'Dono de Barbearia') {
+    final userTypeMapped = mapUserType(_userType!);
+
+    if (userTypeMapped == 'dono') {
       if (_barbershopNameController.text.isEmpty ||
           _cpfCnpjController.text.isEmpty ||
           _addressController.text.isEmpty) {
@@ -76,17 +93,56 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     }
 
-    // Apenas prints para exemplo
-    print('Nome: ${_nameController.text}');
-    print('Telefone: ${_phoneController.text}');
-    print('Email: ${_emailController.text}');
-    print('Senha: ${_passwordController.text}');
-    print('Tipo de usuário: $_userType');
+    try {
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
 
-    if (_userType == 'Dono de Barbearia') {
-      print('Nome da Barbearia: ${_barbershopNameController.text}');
-      print('CPF/CNPJ: ${_cpfCnpjController.text}');
-      print('Endereço: ${_addressController.text}');
+      final uid = credential.user!.uid;
+
+      final userData = {
+        'nome': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'telefone': _phoneController.text.trim(),
+        'userType': userTypeMapped,
+        'isCliente': userTypeMapped == 'cliente',
+        'isDono': userTypeMapped == 'dono',
+        'isBarbeiro': userTypeMapped == 'barbeiro',
+        'createdAt': Timestamp.now(),
+      };
+
+      if (userTypeMapped == 'dono') {
+        userData.addAll({
+          'nomeBarbearia': _barbershopNameController.text.trim(),
+          'cpfCnpj': _cpfCnpjController.text.trim(),
+          'endereco': _addressController.text.trim(),
+        });
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(userData);
+
+      _goToDashboard(userTypeMapped);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao criar conta: $e')));
+    }
+  }
+
+  void _goToDashboard(String tipo) {
+    if (tipo == 'cliente') {
+      Navigator.pushReplacementNamed(context, '/cliente');
+    } else if (tipo == 'barbeiro') {
+      Navigator.pushReplacementNamed(context, '/barbeiro');
+    } else if (tipo == 'dono') {
+      Navigator.pushReplacementNamed(context, '/dono');
+    } else {
+      Navigator.pushReplacementNamed(context, '/user_type');
     }
   }
 
@@ -115,7 +171,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 Text(
                   'Cadastrar Barbearia Pro',
                   style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w900,
                     fontSize: 24,
                     color: const Color(0xFF161C24),
                   ),
@@ -158,12 +214,13 @@ class _SignupScreenState extends State<SignupScreen> {
                               value: tipo,
                               groupValue: _userType,
                               activeColor: const Color(0xFF2797FF),
-                              fillColor: WidgetStateProperty.resolveWith<Color>(
-                                (states) =>
-                                    states.contains(WidgetState.selected)
-                                        ? const Color(0xFF2797FF)
-                                        : const Color(0xFFB0C5D9),
-                              ),
+                              fillColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                    (states) =>
+                                        states.contains(MaterialState.selected)
+                                            ? const Color(0xFF2797FF)
+                                            : const Color(0xFFB0C5D9),
+                                  ),
                               onChanged:
                                   (val) => setState(() => _userType = val),
                             ),
@@ -301,7 +358,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           recognizer:
                               TapGestureRecognizer()
                                 ..onTap = () {
-                                  // ação de navegação para login
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/login',
+                                  );
                                 },
                         ),
                       ],
@@ -331,9 +391,9 @@ class _SignupScreenState extends State<SignupScreen> {
         Text(
           label,
           style: GoogleFonts.manrope(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF161C24),
+            color: const Color.fromARGB(255, 0, 107, 246),
           ),
         ),
         const SizedBox(height: 4),
@@ -342,15 +402,15 @@ class _SignupScreenState extends State<SignupScreen> {
           obscureText: obscure,
           keyboardType: keyboard,
           style: GoogleFonts.manrope(
-            color: const Color(0xFF161C24),
-            fontSize: 16,
+            color: const Color.fromARGB(255, 0, 106, 245),
+            fontSize: 10,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.manrope(
-              color: const Color(0x802797FF),
+              color: const Color.fromARGB(128, 0, 0, 0),
               fontSize: 16,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w300,
             ),
             prefixIcon: Icon(icon, color: const Color(0xFF2797FF)),
             suffixIcon:
@@ -358,7 +418,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     ? IconButton(
                       icon: Icon(
                         obscure ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFF2797FF),
+                        color: Colors.grey,
+                        size: 18,
                       ),
                       onPressed: toggleObscure,
                     )
