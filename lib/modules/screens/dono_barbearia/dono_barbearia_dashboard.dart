@@ -4,216 +4,485 @@ import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-class DonoBarbeariaDashboard extends StatefulWidget {
-  const DonoBarbeariaDashboard({super.key});
-
-  @override
-  State<DonoBarbeariaDashboard> createState() => _DonoBarbeariaDashboardState();
-}
-
-class _DonoBarbeariaDashboardState extends State<DonoBarbeariaDashboard> {
-  int _selectedIndex = 0;
-  String? barbeariaId;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBarbeariaId();
-  }
-
-  void _loadBarbeariaId() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        barbeariaId = user.uid;
-      });
-      await _adicionarCategoriasTeste(user.uid);
-    }
-  }
-
-  Future<void> _adicionarCategoriasTeste(String barbeariaId) async {
-    final categoriasRef = FirebaseFirestore.instance
-        .collection('barbearias')
-        .doc(barbeariaId)
-        .collection('categorias');
-
-    List<String> categoriasTeste = [
-      'Corte Masculino',
-      'Corte Feminino',
-      'Barba',
-      'Corte de Cabelo Infantil',
-    ];
-
-    for (var categoria in categoriasTeste) {
-      final existingCategory =
-          await categoriasRef.where('nome', isEqualTo: categoria).get();
-
-      if (existingCategory.docs.isEmpty) {
-        await categoriasRef.add({'nome': categoria});
-      }
-    }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
-  }
-
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
-  }
+class DonoBarbeariaDashboard extends StatelessWidget {
+  const DonoBarbeariaDashboard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (barbeariaId == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final today = DateFormat('d \'de\' MMMM', 'pt_BR').format(DateTime.now());
+
+    final agendamentos = [
+      {
+        'nome': 'Carlos Silva',
+        'servico': 'Corte + Barba',
+        'hora': '14:30',
+        'valor': 'R\$ 45,00',
+        'avatarUrl':
+            'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c',
+      },
+      {
+        'nome': 'Roberto Santos',
+        'servico': 'Corte Social',
+        'hora': '15:00',
+        'valor': 'R\$ 40,00',
+        'avatarUrl':
+            'https://images.unsplash.com/photo-1494708001911-679f5d15a946',
+      },
+    ];
+
+    Widget buildCard(Color color, IconData icon, String value, String label) {
+      return Expanded(
+        child: Container(
+          height: 250,
+          decoration: BoxDecoration(
+            color: color,
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 8,
+                color: Colors.black.withOpacity(0.1),
+                offset: const Offset(0, 2),
+              ),
+            ],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: Colors.white, size: 32),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildConfigCard(
+      BuildContext context,
+      IconData icon,
+      String label,
+      Color color,
+      VoidCallback onTap,
+    ) {
+      return Expanded(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 8,
+                  color: Colors.black.withOpacity(0.1),
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Icon(icon, color: Colors.white, size: 32),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF0F5F9),
       appBar: AppBar(
-        title: const Text('Painel do Administrador'),
-        backgroundColor: Colors.black87,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+        backgroundColor: const Color(0xFFF0F5F9),
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        title: Row(
           children: [
-            // Card Serviços
-            GestureDetector(
-              onTap: () {
-                if (barbeariaId != null && barbeariaId!.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => GerenciarServicosScreen(
-                            barbeariaId: barbeariaId!,
-                          ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Barbearia Elite',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Barbearia ID não encontrado.'),
+                  ),
+                  Text(
+                    'Hoje, $today',
+                    style: const TextStyle(
+                      color: Color(0xFF636F81),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
-                  );
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue[900],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.content_cut, color: Colors.white, size: 40),
-                    SizedBox(height: 10),
-                    Text(
-                      'Serviços',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-
-            // Card Categorias
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GerenciarCategoriasScreen(),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue[900],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.category, color: Colors.white, size: 40),
-                    SizedBox(height: 10),
-                    Text(
-                      'Categorias',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Card Barbeiros
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GerenciarBarbeirosScreen(),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue[900],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.person, color: Colors.white, size: 40),
-                    SizedBox(height: 10),
-                    Text(
-                      'Barbeiros',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
+            const CircleAvatar(
+              radius: 24,
+              backgroundImage: NetworkImage(
+                'https://images.unsplash.com/photo-1566416440105-6c36b6919a2e',
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blue[900],
-        unselectedItemColor: Colors.black54,
-        backgroundColor: Colors.black,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: 'Dashboard',
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              // Título
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Bem-vindo de volta, João!',
+                  style: TextStyle(
+                    color: Color(0xFF636F81),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Cards de estatísticas
+              Row(
+                children: [
+                  buildCard(
+                    const Color(0xFF27AE52),
+                    Icons.attach_money,
+                    'R\$ 2.450',
+                    'Receita Hoje',
+                  ),
+                  const SizedBox(width: 12),
+                  buildCard(
+                    const Color(0xFF2797FF),
+                    Icons.event,
+                    '18',
+                    'Agendamentos Hoje',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  buildCard(
+                    const Color(0xFFFC964D),
+                    Icons.schedule,
+                    '3',
+                    'Pendentes',
+                  ),
+                  const SizedBox(width: 12),
+                  buildCard(
+                    const Color(0xFF1D242C),
+                    Icons.people,
+                    '127',
+                    'Clientes Ativos',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Lista de agendamentos
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 8,
+                      color: Colors.black.withOpacity(0.05),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Próximos Agendamentos',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      itemCount: agendamentos.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final a = agendamentos[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0F5F9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    a['avatarUrl']!,
+                                  ),
+                                  radius: 24,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        a['nome']!,
+                                        style: const TextStyle(
+                                          color: Color.fromARGB(255, 6, 6, 6),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        a['servico']!,
+                                        style: const TextStyle(
+                                          color: Color.fromARGB(
+                                            255,
+                                            134,
+                                            134,
+                                            134,
+                                          ),
+                                        ),
+                                      ),
+
+                                      Text(
+                                        '${a['hora']} - ${a['valor']}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF2797FF),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Título "Configurações"
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Configurações',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Cards de configuração com altura aumentada
+              Row(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2 - 24,
+                    height: 250,
+                    child: GestureDetector(
+                      onTap: () {
+                        // ação ao clicar em "Vincular Barbeiros"
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2797FF),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.person_add_alt_1_rounded,
+                              size: 36,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Vincular Barbeiros',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2 - 24,
+                    height: 250,
+                    child: GestureDetector(
+                      onTap: () {
+                        // ação ao clicar em "Horários de Abertura"
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF27AE52),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 36,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Horários de Abertura',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 100), // Espaço extra para rolagem
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Agenda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
-        ],
+        ),
+      ),
+
+      // BOTÕES FIXADOS NO RODAPÉ
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.add),
+                label: const Text('Novo Agendamento'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2797FF),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.bar_chart_rounded),
+                label: const Text('Relatório'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF2797FF),
+                  side: const BorderSide(color: Color(0xFF2797FF)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

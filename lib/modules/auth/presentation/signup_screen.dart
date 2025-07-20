@@ -402,8 +402,8 @@ class _SignupScreenState extends State<SignupScreen> {
           obscureText: obscure,
           keyboardType: keyboard,
           style: GoogleFonts.manrope(
-            color: const Color.fromARGB(255, 0, 106, 245),
-            fontSize: 10,
+            color: const Color(0xFF161C24),
+            fontSize: 16,
           ),
           decoration: InputDecoration(
             hintText: hint,
