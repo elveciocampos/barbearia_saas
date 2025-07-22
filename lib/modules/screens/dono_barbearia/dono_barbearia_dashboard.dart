@@ -1,16 +1,9 @@
-import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_barbeiros_screen.dart';
-import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_categorias.dart';
-import 'package:barbearia_saas/modules/screens/dono_barbearia/gerenciar_servicos_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 class DonoBarbeariaDashboard extends StatelessWidget {
-  const DonoBarbeariaDashboard({Key? key}) : super(key: key);
+  const DonoBarbeariaDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -139,14 +132,6 @@ class DonoBarbeariaDashboard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Barbearia Elite',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                   Text(
                     'Hoje, $today',
                     style: const TextStyle(
@@ -155,9 +140,77 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                  const Text(
+                    'Bem-vindo de volta,',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+
+                  const Text(
+                    'Barbearia Elite',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
+
+            // Ícone de Notificações
+            IconButton(
+              icon: const Icon(Icons.notifications_none_rounded),
+              color: Colors.black87,
+              onPressed: () {
+                // ação de notificação
+              },
+            ),
+
+            // Ícone de Configurações
+            IconButton(
+              icon: const Icon(Icons.settings),
+              color: Colors.black87,
+              onPressed: () {
+                // ação de configurações
+              },
+            ),
+
+            // Ícone de Logout
+            IconButton(
+              icon: const Icon(Icons.logout),
+              color: const Color.fromARGB(255, 0, 0, 0),
+              tooltip: 'Sair',
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text('Deseja sair?'),
+                        content: const Text('Você será desconectado da conta.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancelar'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2797FF),
+                            ),
+                            child: const Text('Sair'),
+                          ),
+                        ],
+                      ),
+                );
+
+                if (confirm == true) {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
+              },
+            ),
+
+            // Avatar
             const CircleAvatar(
               radius: 24,
               backgroundImage: NetworkImage(
@@ -170,37 +223,37 @@ class DonoBarbeariaDashboard extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
-              // Título
+              // TOPO: Avatar + Ícones
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Saudação e nome do usuário
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Bem-vindo de volta,',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Elvécio', // Ou qualquer nome dinâmico
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Bem-vindo de volta, João!',
-                  style: TextStyle(
-                    color: Color(0xFF636F81),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
 
+              const SizedBox(height: 24), // Espaçamento depois do topo
               // Cards de estatísticas
               Row(
                 children: [

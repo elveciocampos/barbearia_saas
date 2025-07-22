@@ -214,13 +214,12 @@ class _SignupScreenState extends State<SignupScreen> {
                               value: tipo,
                               groupValue: _userType,
                               activeColor: const Color(0xFF2797FF),
-                              fillColor:
-                                  MaterialStateProperty.resolveWith<Color>(
-                                    (states) =>
-                                        states.contains(MaterialState.selected)
-                                            ? const Color(0xFF2797FF)
-                                            : const Color(0xFFB0C5D9),
-                                  ),
+                              fillColor: WidgetStateProperty.resolveWith<Color>(
+                                (states) =>
+                                    states.contains(WidgetState.selected)
+                                        ? const Color(0xFF2797FF)
+                                        : const Color(0xFFB0C5D9),
+                              ),
                               onChanged:
                                   (val) => setState(() => _userType = val),
                             ),
