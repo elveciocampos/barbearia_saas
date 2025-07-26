@@ -1,130 +1,194 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class GerenciarHorariosScreen extends StatelessWidget {
-  final String barbeiroUid;
+class GerenciarHorariosAppBar extends StatefulWidget {
+  GerenciarHorariosAppBar({Key? key}) : super(key: key);
 
-  const GerenciarHorariosScreen({super.key, required this.barbeiroUid});
+  @override
+  _GerenciarHorariosAppBarState createState() =>
+      _GerenciarHorariosAppBarState();
+}
+
+class _GerenciarHorariosAppBarState extends State<GerenciarHorariosAppBar> {
+  bool switchValue1 = false;
+
+  final List<Map<String, String>> horarios = [
+    {'dia': 'Segunda-feira', 'horario': '08:00 - 18:00'},
+    {'dia': 'Terça-feira', 'horario': '08:00 - 18:00'},
+    {'dia': 'Quarta-feira', 'horario': '08:00 - 18:00'},
+    {'dia': 'Quinta-feira', 'horario': '08:00 - 18:00'},
+    {'dia': 'Sexta-feira', 'horario': '08:00 - 18:00'},
+    {'dia': 'Sábado', 'horario': '09:00 - 14:00'},
+    {'dia': 'Domingo', 'horario': 'Fechado'},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Horários do Barbeiro')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream:
-            FirebaseFirestore.instance
-                .collection('users')
-                .doc(barbeiroUid)
-                .collection('horarios')
-                .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Nenhum horário encontrado.'));
-          }
-
-          final horarios = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: horarios.length,
-            itemBuilder: (context, index) {
-              final horario = horarios[index];
-              final horarioId = horario.id;
-              final dia = horario['dia'];
-              final inicio = horario['inicio'];
-              final fim = horario['fim'];
-
-              return ListTile(
-                title: Text('$dia: $inicio - $fim'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        _mostrarDialogoEdicao(
-                          context,
-                          horarioId,
-                          dia,
-                          inicio,
-                          fim,
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(barbeiroUid)
-                            .collection('horarios')
-                            .doc(horarioId)
-                            .delete();
-                      },
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          color: Theme.of(context).colorScheme.onBackground,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Text(
+          'Gerenciar Horários',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: IconButton(
+              icon: const Icon(Icons.save_rounded),
+              color: Theme.of(context).colorScheme.primary,
+              onPressed: () {
+                print('Salvar pressionado');
+              },
+            ),
+          ),
+        ],
+        centerTitle: false,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Bloco superior
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 8,
+                      color: Color(0x1A000000),
+                      offset: Offset(0, 2),
                     ),
                   ],
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  void _mostrarDialogoEdicao(
-    BuildContext context,
-    String horarioId,
-    String dia,
-    String inicio,
-    String fim,
-  ) {
-    final inicioController = TextEditingController(text: inicio);
-    final fimController = TextEditingController(text: fim);
-
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Editar horário - $dia'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: inicioController,
-                  decoration: const InputDecoration(labelText: 'Início'),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Horário Semanal',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                              color:
+                                  Theme.of(context).textTheme.titleLarge?.color,
+                            ),
+                          ),
+                          Switch(
+                            value: switchValue1,
+                            onChanged: (newValue) {
+                              setState(() {
+                                switchValue1 = newValue;
+                              });
+                            },
+                            activeColor: Colors.green,
+                            inactiveTrackColor: Colors.grey.shade400,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Configure seus horários de funcionamento para cada dia da semana',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                TextField(
-                  controller: fimController,
-                  decoration: const InputDecoration(labelText: 'Fim'),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                child: const Text('Cancelar'),
-                onPressed: () => Navigator.pop(context),
               ),
-              TextButton(
-                child: const Text('Salvar'),
-                onPressed: () async {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(barbeiroUid)
-                      .collection('horarios')
-                      .doc(horarioId)
-                      .update({
-                        'inicio': inicioController.text,
-                        'fim': fimController.text,
-                      });
-                  Navigator.pop(context);
+
+              const SizedBox(height: 24),
+
+              // Lista de horários
+              ListView.builder(
+                itemCount: horarios.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final item = horarios[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 0,
+                      vertical: 8,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['dia']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    item['horario']!,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.color
+                                          ?.withOpacity(0.7),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 20),
+                              tooltip: 'Editar horário',
+                              onPressed: () {
+                                // Ação de editar horário
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
             ],
           ),
+        ),
+      ),
     );
   }
 }

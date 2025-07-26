@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
@@ -141,11 +142,6 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                     ),
                   ),
                   const Text(
-                    'Bem-vindo de volta,',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-
-                  const Text(
                     'Barbearia Elite',
                     style: TextStyle(
                       color: Colors.black,
@@ -161,18 +157,14 @@ class DonoBarbeariaDashboard extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.notifications_none_rounded),
               color: Colors.black87,
-              onPressed: () {
-                // ação de notificação
-              },
+              onPressed: () {},
             ),
 
             // Ícone de Configurações
             IconButton(
               icon: const Icon(Icons.settings),
               color: Colors.black87,
-              onPressed: () {
-                // ação de configurações
-              },
+              onPressed: () {},
             ),
 
             // Ícone de Logout
@@ -210,7 +202,6 @@ class DonoBarbeariaDashboard extends StatelessWidget {
               },
             ),
 
-            // Avatar
             const CircleAvatar(
               radius: 24,
               backgroundImage: NetworkImage(
@@ -227,26 +218,60 @@ class DonoBarbeariaDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // TOPO: Avatar + Ícones
+              // TOPO: Avatar + Nome do usuário
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Saudação e nome do usuário
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'Bem-vindo de volta,',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Elvécio', // Ou qualquer nome dinâmico
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      const SizedBox(height: 4),
+                      FutureBuilder<DocumentSnapshot>(
+                        future:
+                            FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text(
+                              'Carregando...',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            );
+                          }
+
+                          if (!snapshot.hasData || !snapshot.data!.exists) {
+                            return const Text(
+                              'Usuário',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            );
+                          }
+
+                          final nome = snapshot.data!.get('nome') ?? 'Usuário';
+
+                          return Text(
+                            nome,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -403,96 +428,97 @@ class DonoBarbeariaDashboard extends StatelessWidget {
               // Cards de configuração com altura aumentada
               Row(
                 children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                    height: 250,
-                    child: GestureDetector(
-                      onTap: () {
-                        // ação ao clicar em "Vincular Barbeiros"
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2797FF),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              Icons.person_add_alt_1_rounded,
-                              size: 36,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Vincular Barbeiros',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                  Expanded(
+                    child: SizedBox(
+                      height: 250,
+                      child: GestureDetector(
+                        onTap: () {
+                          // ação ao clicar em "Vincular Barbeiros"
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2797FF),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.person_add_alt_1_rounded,
+                                size: 36,
                                 color: Colors.white,
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 12),
+                              Text(
+                                'Vincular Barbeiros',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2 - 24,
-                    height: 250,
-                    child: GestureDetector(
-                      onTap: () {
-                        // ação ao clicar em "Horários de Abertura"
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF27AE52),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              Icons.access_time_rounded,
-                              size: 36,
-                              color: Colors.white,
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Horários de Abertura',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                  Expanded(
+                    child: SizedBox(
+                      height: 250,
+                      child: GestureDetector(
+                        onTap: () {
+                          // ação ao clicar em "Horários de Abertura"
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF27AE52),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.access_time_rounded,
+                                size: 36,
                                 color: Colors.white,
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 12),
+                              Text(
+                                'Horários de Abertura',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 100), // Espaço extra para rolagem
             ],
           ),
