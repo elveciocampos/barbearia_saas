@@ -1,3 +1,4 @@
+import 'package:barbearia_saas/modules/screens/dono_barbearia/horario_dono_barbearia.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -431,7 +432,8 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                   Expanded(
                     child: SizedBox(
                       height: 250,
-                      child: GestureDetector(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
                         onTap: () {
                           // ação ao clicar em "Vincular Barbeiros"
                         },
@@ -441,29 +443,33 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.07),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 32,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(
                                 Icons.person_add_alt_1_rounded,
-                                size: 36,
+                                size: 40,
                                 color: Colors.white,
                               ),
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
                               Text(
                                 'Vincular Barbeiros',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
                                   color: Colors.white,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ],
@@ -472,13 +478,19 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: SizedBox(
                       height: 250,
-                      child: GestureDetector(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
                         onTap: () {
-                          // ação ao clicar em "Horários de Abertura"
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HorarioDonoBarbearia(),
+                            ),
+                          );
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -486,29 +498,33 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.07),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 32,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(
                                 Icons.access_time_rounded,
-                                size: 36,
+                                size: 40,
                                 color: Colors.white,
                               ),
-                              SizedBox(height: 12),
+                              SizedBox(height: 16),
                               Text(
                                 'Horários de Abertura',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
                                   color: Colors.white,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ],
@@ -519,6 +535,7 @@ class DonoBarbeariaDashboard extends StatelessWidget {
                   ),
                 ],
               ),
+
               const SizedBox(height: 100), // Espaço extra para rolagem
             ],
           ),

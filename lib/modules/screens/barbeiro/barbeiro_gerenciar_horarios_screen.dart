@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class GerenciarHorariosAppBar extends StatefulWidget {
-  GerenciarHorariosAppBar({Key? key}) : super(key: key);
+  const GerenciarHorariosAppBar({super.key});
 
   @override
   _GerenciarHorariosAppBarState createState() =>
@@ -25,11 +25,11 @@ class _GerenciarHorariosAppBarState extends State<GerenciarHorariosAppBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
           onPressed: () {
             Navigator.of(context).pop();
           },

@@ -1,7 +1,3 @@
-import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_cadastrar_horarios_screen.dart';
-import 'package:barbearia_saas/modules/screens/barbeiro/barbeiro_gerenciar_horarios_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class BarbeiroHomeScreen extends StatefulWidget {
