@@ -71,6 +71,18 @@ class HorarioDonoBarbearia extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
+            const SizedBox(width: 12),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: []),
+          ],
+        ),
+        actions: [],
+        elevation: 0,
+      ),
+      backgroundColor: const Color(0xFFF0F2F5),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
             Container(
               width: 40,
               height: 40,
@@ -82,44 +94,6 @@ class HorarioDonoBarbearia extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Olá, João!',
-                  style: GoogleFonts.sora(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 22,
-                    color: const Color(0xFF14181B),
-                  ),
-                ),
-                Text(
-                  'Administrador',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF677681),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: Color(0xFF14181B),
-            ),
-            onPressed: () => print('Notificações'),
-          ),
-        ],
-        elevation: 0,
-      ),
-      backgroundColor: const Color(0xFFF0F2F5),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
